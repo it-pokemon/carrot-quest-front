@@ -1,0 +1,77 @@
+<div class="chat">
+
+  <div class="chat__list chats">
+
+    <div class="chats__title title">Chats with</div>
+
+    <div class="chats__list">
+      <ng-scrollbar #chatsScrollbar>
+      <div class="chats__item" *ngFor="let ch of chats;" (click)="setChatActive(ch)"
+           [ngClass]="{'chats__item--active': ch.id === activeChatId}">
+
+        <div class="chats__avatar avatar">
+          <img [src]="ch.partner.avatar">
+        </div>
+
+        <div class="chats__info">
+          <h4>{{ch.partner.username}}</h4>
+        </div>
+
+        <div class="chats__actions">
+          <i class="fa fa-close" (click)="removeChat(ch, $event);"></i>
+        </div>
+
+      </div>
+      </ng-scrollbar>
+
+    </div>
+
+  </div>
+
+  <div class="chat__messages messages">
+
+    <div class="messages__empty" *ngIf="partner === null">
+      <p>You didn't choose chat</p>
+    </div>
+    <div class="messages__empty" *ngIf="loading">
+      <p>Loading...</p>
+    </div>
+
+    <div class="messages__title title" >Messages</div>
+
+    <div class="messages__list">
+      <ng-scrollbar #messagesScrollbar>
+      <div *ngFor="let m of messages;" [ngClass]="{'messages__item--in' : m.creatorId !== profile.id}"
+           class="messages__item">
+
+        <ng-template #inMessage [ngIf]="m.creatorId !== profile.id">
+          <div class="messages__user messages__user--in">
+            <div class="messages__avatar" [ngStyle]="getAvatarStyle(partner)"></div>
+            <span class="messages__time">{{m.date | date:'hh:mm'}}</span>
+          </div>
+          <div class="messages__text messages__text--in">{{m.text}}</div>
+        </ng-template>
+
+        <ng-template #outMessage [ngIf]="m.creatorId == profile.id">
+          <div class="messages__user">
+            <div class="messages__avatar" [ngStyle]="getAvatarStyle(profile)"></div>
+            <span class="messages__time">{{m.date | date:'hh:mm'}}</span>
+          </div>
+          <div class="messages__text">{{m.text}}</div>
+        </ng-template>
+      </div>
+      </ng-scrollbar>
+    </div>
+
+    <div class="messages__form">
+      <div class="messages__form-control messages__form-control--large">
+        <input [(ngModel)]="textMessage" (keydown.enter)="sendMessage()"
+               type="text" class="messages__input" placeholder="Type your message...">
+      </div>
+      <div class="messages__form-control messages__form-control--center">
+        <button class="messages__button" (click)="sendMessage()"></button>
+      </div>
+    </div>
+  </div>
+
+</div>

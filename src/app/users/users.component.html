@@ -1,0 +1,10 @@
+<div class="users">
+  <div class="users__title title">Users</div>
+  <ul class="users__list">
+    <ng-scrollbar>
+      <li class="users__item" *ngFor="let u of users;" (click)="setChatWithUser(u)">
+        {{u.username}}
+      </li>
+    </ng-scrollbar>
+  </ul>
+</div>

@@ -1,0 +1,35 @@
+<div class="sign-up-container">
+
+  <div class="sign-up">
+
+    <div class="sign-up__title title">Sign Up</div>
+
+    <a class="sign-up__link" href="/sign-in">I have an account</a>
+
+    <form class="sign-up__form" autocomplete="off"
+          [formGroup]="form" (ngSubmit)="signUp()">
+
+      <div class="control">
+        <input id="username" type="text" name="username" placeholder="You Username..."
+               formControlName="username"/>
+      </div>
+
+      <div class="control">
+        <input  id="email"  type="email" name="email" placeholder="You Email..."
+                formControlName="email"/>
+      </div>
+
+      <div class="control">
+        <input id="password" type="password" name="password" placeholder="We need a password..."
+               formControlName="password"/>
+      </div>
+
+      <div class="control">
+        <button type="submit">Sign Up</button>
+      </div>
+
+    </form>
+
+  </div>
+
+</div>

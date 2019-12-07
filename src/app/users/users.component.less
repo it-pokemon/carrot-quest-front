@@ -1,0 +1,25 @@
+@import "../../mixin";
+
+.users {
+  &__title {
+    padding: 20px 30px;
+    border-bottom: 1px solid #363d45;
+  }
+
+  &__list {
+    padding: 20px;
+    list-style-type: none;
+  }
+
+  &__item {
+    padding: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+
+    .fz(14);
+
+    &:hover {
+      background-color: #343d45;
+    }
+  }
+}
