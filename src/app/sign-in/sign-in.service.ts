@@ -2,7 +2,6 @@ import {Injectable} from '@angular/core';
 import {Profile} from '../profile/service/profile.service';
 import {HttpClient} from '@angular/common/http';
 import {Router} from '@angular/router';
-import {retry} from 'rxjs/operators';
 
 export interface SignIn {
   email: string;
@@ -20,12 +19,18 @@ export class SignInService {
   ) {
   }
 
-  signIn(signIn: SignIn) {
-    this.http.post<Profile>('http://localhost:3000/sign-in', signIn)
-      .subscribe(profile => {
-        localStorage.setItem('profile', JSON.stringify(profile));
-        this.router.navigate(['/']);
-      });
+  signIn(signIn: SignIn): Promise<any> {
+    return new Promise((resolve, reject) => {
+
+      this.http.post<Profile>('http://localhost:3000/sign-in', signIn)
+        .subscribe(profile => {
+          localStorage.setItem('profile', JSON.stringify(profile));
+          this.router.navigate(['/']);
+        }, err => {
+          reject(err);
+        });
+
+    });
   }
 
   isAuth(): Promise<boolean> {

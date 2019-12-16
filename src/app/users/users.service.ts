@@ -5,7 +5,7 @@ import {ProfileService} from '../profile/service/profile.service';
 import {SocketService} from '../services/socket.service';
 
 export interface User {
-  id: any;
+  id: number;
   username: string;
   avatar?: string;
 }
@@ -15,7 +15,10 @@ export interface User {
 })
 export class UsersService {
 
+  /* Поток для информации о пользоватлях */
   subUsers: Subject<User[]> = new Subject<User[]>();
+
+  /* Поток для инофрмации о пользователе */
   subUser: Subject<User> = new Subject<User>();
 
   users: User[] = [];
@@ -26,6 +29,7 @@ export class UsersService {
     private socketService: SocketService
   ) {
     this.fetchUsers();
+
     this.socketService.on('newUser', newUser => {
       if (!this.users.find(u => (u.id === newUser.id))) {
         this.users.push(newUser);
@@ -42,11 +46,9 @@ export class UsersService {
       .subscribe(users => {
         this.users = users;
         this.subUsers.next(this.users);
+      }, err => {
+        console.error('Error: ', err.error);
       });
-  }
-
-  getUser(id: number): User {
-    return this.users.find(user => (user.id === id));
   }
 
   setChatWithUser(user: User) {

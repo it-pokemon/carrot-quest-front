@@ -1,5 +1,5 @@
-import {Component, OnInit} from '@angular/core';
-import {FormControl, FormGroup} from '@angular/forms';
+import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import {FormControl, FormGroup, Validators} from '@angular/forms';
 import {SignUp, SignUpService} from './sign-up.service';
 
 @Component({
@@ -9,11 +9,22 @@ import {SignUp, SignUpService} from './sign-up.service';
 })
 export class SignUpComponent implements OnInit {
 
+  @ViewChild('formError', {static: true}) formError: ElementRef;
+
   form: FormGroup = new FormGroup(
     {
-      username: new FormControl(''),
-      email: new FormControl(''),
-      password: new FormControl('')
+      username: new FormControl('', [
+        Validators.required,
+        Validators.minLength(4)
+      ]),
+      email: new FormControl('', [
+        Validators.required,
+        Validators.email
+      ]),
+      password: new FormControl('', [
+        Validators.required,
+        Validators.minLength(4)
+      ])
     }
   );
 
@@ -24,11 +35,19 @@ export class SignUpComponent implements OnInit {
   }
 
   signUp() {
+    if (!this.form.valid) {
+      return;
+    }
+
     const signUp: SignUp = {
       username: this.form.get('username').value,
       email: this.form.get('email').value,
       password: this.form.get('password').value
     };
-    this.signUpService.signUp(signUp);
+
+    this.signUpService.signUp(signUp)
+      .catch(err => {
+        this.formError.nativeElement.textContent = err.error;
+      });
   }
 }

@@ -44,7 +44,7 @@
       <div *ngFor="let m of messages;" [ngClass]="{'messages__item--in' : m.creatorId !== profile.id}"
            class="messages__item">
 
-        <ng-template #inMessage [ngIf]="m.creatorId !== profile.id">
+        <ng-template #inMessage [ngIf]="m.creatorId !== profile.id && partner">
           <div class="messages__user messages__user--in">
             <div class="messages__avatar" [ngStyle]="getAvatarStyle(partner)"></div>
             <span class="messages__time">{{m.date | date:'hh:mm'}}</span>

@@ -1,6 +1,5 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {User} from '../users/users.service';
 import {Profile} from '../profile/service/profile.service';
 import {Router} from '@angular/router';
 
@@ -21,11 +20,17 @@ export class SignUpService {
   ) {
   }
 
-  signUp(singUp: SignUp) {
-    this.http.post<Profile>('http://localhost:3000/sign-up', singUp)
-      .subscribe(profile => {
-        localStorage.setItem('profile', JSON.stringify(profile));
-        this.router.navigate(['/']);
-      });
+  signUp(singUp: SignUp): Promise<any> {
+    return new Promise((resolve, reject) => {
+
+      this.http.post<Profile>('http://localhost:3000/sign-up', singUp)
+        .subscribe(profile => {
+          localStorage.setItem('profile', JSON.stringify(profile));
+          this.router.navigate(['/']);
+        }, err => {
+          reject(err);
+        });
+
+    });
   }
 }

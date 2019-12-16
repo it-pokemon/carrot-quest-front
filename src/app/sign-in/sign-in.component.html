@@ -6,16 +6,26 @@
 
     <a class="sign-in__link" href="/sign-up">I don't have an account</a>
 
+    <div #formError class="error"></div>
+
     <form class="sign-in__form" autocomplete="off" [formGroup]="form" (ngSubmit)="signIn()">
 
       <div class="control">
         <input  id="email"  type="email" name="email" placeholder="Email..."
                 formControlName="email"/>
+        <div *ngIf="form.get('email').invalid && form.get('email').touched">
+          <span class="error"
+                *ngIf="form.get('email').errors.email">I's not correct email.</span>
+        </div>
       </div>
 
       <div class="control">
         <input id="password" type="password" name="password" placeholder="Password..."
                formControlName="password"/>
+        <div *ngIf="form.get('password').invalid && form.get('password').touched">
+          <span class="error"
+                *ngIf="form.get('password').errors.minlength">Name must be at least 4 characters long.</span>
+        </div>
       </div>
 
       <div class="control">

@@ -1,6 +1,5 @@
 import {Injectable} from '@angular/core';
 import {User, UsersService} from '../users/users.service';
-import {Chat} from '../chats/service/chats.service';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {Subject} from 'rxjs';
 import {ProfileService} from '../profile/service/profile.service';
@@ -14,9 +13,9 @@ export interface Chat {
 }
 
 export interface Message {
-  id?: any;
+  id?: number;
   text: string;
-  date?: any;
+  date?: number;
   creatorId: number;
   partnerId: number;
   chatId: number;
@@ -25,8 +24,13 @@ export interface Message {
 @Injectable({providedIn: 'root'})
 export class ChatService {
 
+  /* Поток для информации о чате */
   subChat: Subject<Chat> = new Subject<Chat>();
+
+  /* Поток для информации о списке чатов */
   subChats: Subject<Chat[]> = new Subject<Chat[]>();
+
+  /* Поток для информации о сообщениях */
   subMessages: Subject<Message[]> = new Subject<Message[]>();
 
   chats: Chat[] = [];
@@ -35,8 +39,7 @@ export class ChatService {
   constructor(
     private http: HttpClient,
     private profileService: ProfileService,
-    private socketService: SocketService,
-    private usersService: UsersService
+    private socketService: SocketService
   ) {
     this.fetchChats();
 
@@ -44,12 +47,14 @@ export class ChatService {
       console.log(socketId);
     });
 
+    /* С авторизованным пользователем начали новый чат */
     this.socketService.on('newChatWithPartner', newChat => {
       if (!this.chats.includes(newChat)) {
         this.chats.unshift(newChat);
       }
     });
 
+    /* Пришло новое сообщение */
     this.socketService.on('message', message => {
       this.messages.push(message);
       this.subMessages.next(this.messages);
@@ -66,13 +71,8 @@ export class ChatService {
       .subscribe(chats => {
         this.chats = chats;
         this.subChats.next(this.chats);
-      });
-  }
-
-  fetchChat(id: number) {
-    this.http.get<Chat>('http://localhost:3000/chats/' + id)
-      .subscribe(chat => {
-        this.subChat.next(chat);
+      }, err => {
+        console.error('Error: ', err.error);
       });
   }
 
@@ -85,47 +85,43 @@ export class ChatService {
       .subscribe(chat => {
         this.chats.unshift(chat);
         this.subChat.next(chat);
+      }, err => {
+        console.log('Error: ', err.error);
       });
   }
 
   removeChat(chat: Chat) {
     this.http.delete(`http://localhost:3000/chats/${chat.id}`)
-      .subscribe( response => {
+      .subscribe(response => {
         this.chats.splice(this.chats.indexOf(chat), 1);
         this.subMessages.next([]);
+      }, err => {
+        console.log('Error: ', err.error);
       });
   }
 
-  fetchMessages(chat: Chat) {
-    const requestParam = {
-      params: new HttpParams().set('chatId', chat.id.toString())
-    };
-    this.http.get<Message[]>('http://localhost:3000/messages', requestParam)
-      .subscribe(messages => {
-        this.messages = messages;
-        this.subMessages.next(this.messages);
-      });
+  fetchMessages(chat: Chat): Promise<any> {
+    return new Promise((resolve, reject) => {
+
+      const requestParam = {
+        params: new HttpParams().set('chatId', chat.id.toString())
+      };
+
+      this.http.get<Message[]>('http://localhost:3000/messages', requestParam)
+        .subscribe(messages => {
+          this.messages = messages;
+          this.subMessages.next(this.messages);
+          resolve();
+        }, err => {
+          reject(err);
+        });
+
+    });
   }
 
   sendMessage(message: Message) {
     this.messages.push(message);
     this.socketService.emit('message', message);
   }
-
-  // setChatWithUser(user: User) {
-  //   const chat = this.chats.find(ch => (ch.partnerId === user.id));
-  //   if (chat) {
-  //     this.subChat.next(chat);
-  //   }
-  //
-  //   const newChat = {
-  //     userId: this.profileService.get('id'),
-  //     partnerId: user.id
-  //   };
-  //   this.http.post<Chat>('http://localhost:3000/chats', newChat)
-  //     .subscribe(responseChat => {
-  //       this.subChat.next(responseChat);
-  //     });
-  // }
 
 }

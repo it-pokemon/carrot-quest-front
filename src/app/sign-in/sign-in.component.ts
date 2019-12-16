@@ -1,5 +1,5 @@
-import {Component, OnInit} from '@angular/core';
-import {FormControl, FormGroup} from '@angular/forms';
+import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import {FormControl, FormGroup, Validators} from '@angular/forms';
 import {SignIn, SignInService} from './sign-in.service';
 
 @Component({
@@ -9,10 +9,18 @@ import {SignIn, SignInService} from './sign-in.service';
 })
 export class SignInComponent implements OnInit {
 
+  @ViewChild('formError', {static: true}) formError: ElementRef;
+
   form: FormGroup = new FormGroup(
     {
-      email: new FormControl(''),
-      password: new FormControl('')
+      email: new FormControl('', [
+        Validators.required,
+        Validators.email
+      ]),
+      password: new FormControl('', [
+        Validators.required,
+        Validators.minLength(4)
+      ])
     }
   );
 
@@ -23,10 +31,18 @@ export class SignInComponent implements OnInit {
   }
 
   signIn() {
+    if (!this.form.valid) {
+      return;
+    }
+
     const signIn: SignIn = {
       email: this.form.get('email').value,
       password: this.form.get('password').value
     };
-    this.signInService.signIn(signIn);
+
+    this.signInService.signIn(signIn)
+      .catch(err => {
+        this.formError.nativeElement.textContent = err.error;
+      });
   }
 }
